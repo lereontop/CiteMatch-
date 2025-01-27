@@ -27,27 +27,40 @@
   </template>
 
   <script>
-  import { ref } from 'vue';
-  import axios from 'axios';
+  import { ref } from "vue";
+  import axios from "axios";
+  import { useRouter } from "vue-router";
 
   export default {
     setup() {
-      const email = ref('');
-      const password = ref('');
+      const email = ref("");
+      const password = ref("");
+      const router = useRouter();
 
       const submitForm = async () => {
         try {
-          const response = await axios.post('http://127.0.0.1:8000/api/login', {
-            email: email.value,
-            password: password.value,
+          // Call Sanctum's CSRF cookie endpoint
+          await axios.get("http://127.0.0.1:8000/sanctum/csrf-cookie", {
+            withCredentials: true, // Ensure cookies are included
           });
 
-          console.log('Login Successful:', response.data);
-          localStorage.setItem('auth_token', response.data.token);
-          this.$router.push('/dashboard');
+          // Send login request
+          const response = await axios.post(
+            "http://127.0.0.1:8000/api/login",
+            {
+              email: email.value,
+              password: password.value,
+            },
+            {
+              withCredentials: true, // Include credentials (cookies)
+            }
+          );
+          console.log("Login Successful:", response.data);
+          localStorage.setItem("auth_token", response.data.token);
+          router.push("/dashboard"); // Redirect to the dashboard
         } catch (error) {
-          console.error('Login failed:', error.response.data.message);
-          alert('Invalid credentials');
+          console.error("Login failed:", error.response.data.message);
+          alert("Invalid credentials");
         }
       };
 
