@@ -4,32 +4,32 @@
         <h2 class="register-title">Create Your Account</h2>
         <p class="register-subtitle">Fill in the details below to get started</p>
 
-        <form @submit.prevent="submitForm" class="register-form">
+        <form @submit.prevent="submitForm" class="register-form" >
           <div class="form-group">
             <label for="name">Full Name</label>
-            <input type="text" v-model="name" required placeholder="Enter your full name" />
+            <input type="text" v-model="form.name" required placeholder="Enter your full name" />
           </div>
           <div class="form-group">
             <label for="email">Email Address</label>
-            <input type="email" v-model="email" required placeholder="Enter your email" />
+            <input type="email" v-model="form.email" required placeholder="Enter your email" />
           </div>
           <div class="form-group password-group">
             <label for="password">Password</label>
             <div class="password-container">
-              <!-- Toggle input type for password visibility -->
               <input
-                :type="passwordVisible ? 'text' : 'password'" Correcting the binding
-                v-model="password"
+                :type="passwordVisible ? 'text' : 'password'"
+                v-model="form.password"
                 required
                 placeholder="Choose a password"
               />
-              <!-- Eye icon for toggle -->
               <span class="toggle-password" @click="togglePasswordVisibility">
                 <i :class="passwordVisible ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
               </span>
             </div>
           </div>
-          <button type="submit" class="submit-btn">Register</button>
+          <button type="submit" class="submit-btn" :disabled="loading">
+            {{ loading ? 'Registering...' : 'Register' }}
+          </button>
         </form>
 
         <p class="login-link">
@@ -41,29 +41,50 @@
   </template>
 
   <script>
+  import axios from "axios";
+  import { ref } from "vue";
+
   export default {
-    data() {
+    setup() {
+      const form = ref({
+        name: "",
+        email: "",
+        password: "",
+      });
+
+      const passwordVisible = ref(false);
+      const loading = ref(false);
+
+      const togglePasswordVisibility = () => {
+        passwordVisible.value = !passwordVisible.value;
+      };
+
+      const submitForm = async () => {
+        loading.value = true;
+        try {
+            console.log(form.value);
+          const response = await axios.post('http://127.0.0.1:8000/api/register', form.value);
+          console.log(response.data);
+
+          alert("Registration successful!");
+        } catch (error) {
+          console.error(error.response?.data || error.message);
+          alert("Registration failed. Please try again.");
+        } finally {
+          loading.value = false;
+        }
+      };
+
       return {
-        name: '',
-        email: '',
-        password: '',
-        passwordVisible: false // Flag for password visibility
+        form,
+        passwordVisible,
+        loading,
+        togglePasswordVisibility,
+        submitForm,
       };
     },
-    methods: {
-      submitForm() {
-        // Handle form submission
-        console.log('Name:', this.name);
-        console.log('Email:', this.email);
-        console.log('Password:', this.password);
-      },
-      togglePasswordVisibility() {
-        this.passwordVisible = !this.passwordVisible; // Toggle the password visibility flag
-      }
-    }
   };
   </script>
-
   <style scoped>
   /* Overall Page Styling */
   .register-page {

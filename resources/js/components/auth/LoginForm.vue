@@ -27,22 +27,40 @@
   </template>
 
   <script>
+  import { ref } from 'vue';
+  import axios from 'axios';
+
   export default {
-    data() {
+    setup() {
+      const email = ref('');
+      const password = ref('');
+
+      const submitForm = async () => {
+        try {
+          const response = await axios.post('http://127.0.0.1:8000/api/login', {
+            email: email.value,
+            password: password.value,
+          });
+
+          console.log('Login Successful:', response.data);
+          localStorage.setItem('auth_token', response.data.token);
+          this.$router.push('/dashboard');
+        } catch (error) {
+          console.error('Login failed:', error.response.data.message);
+          alert('Invalid credentials');
+        }
+      };
+
       return {
-        email: '',
-        password: ''
+        email,
+        password,
+        submitForm,
       };
     },
-    methods: {
-      submitForm() {
-        // Handle form submission
-        console.log('Email:', this.email);
-        console.log('Password:', this.password);
-      }
-    }
   };
   </script>
+
+
 
   <style scoped>
   /* Overall Page Styling */
