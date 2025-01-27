@@ -98,7 +98,9 @@ export default {
   },
 };
 </script>
-  <style scoped>
+
+
+<style scoped>
 /* Overall Page Styling */
 .register-page {
   display: flex;
